@@ -7,7 +7,10 @@ import 'package:expensefrontend/data/api/secure_storage.dart';
 import 'package:expensefrontend/data/models/activity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:open_file/open_file.dart';
 
 import '../models/balance.dart';
 import '../models/expense.dart';
@@ -15,7 +18,14 @@ import '../models/groups_model.dart';
 import '../models/member.dart';
 
 class ApiClient1 {
-  final dio = Dio();
+
+
+  // 10.0.2.2
+  Dio dio = Dio(BaseOptions(
+    baseUrl: Platform.isAndroid ? "http://10.0.2.2:8080" : "http://localhost:8080",
+    connectTimeout: Duration(milliseconds: 30000),
+    receiveTimeout: Duration(milliseconds: 30000),
+  ));
   final _secureStorage = SecureStorage();
 
   ApiClient1() {
@@ -37,7 +47,7 @@ class ApiClient1 {
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await dio.post(
-        'http://10.0.2.2:8080/auth/login',
+        '/auth/login',
         data: {'emailid': email, 'password': password},
         options: Options(contentType: 'application/json'),
       );
@@ -59,7 +69,7 @@ class ApiClient1 {
       String name, String email, String password) async {
     try {
       final response = await dio.post(
-        'http://10.0.2.2:8080/auth/register',
+        '/auth/register',
         data: {'name': name, 'emailid': email, 'password': password},
         options: Options(contentType: 'application/json'),
       );
@@ -103,7 +113,7 @@ class ApiClient1 {
     try {
       final token = await _secureStorage.readSecureData('token');
       final response = await dio.post(
-        'http://10.0.2.2:8080/group/create-group',
+        '/group/create-group',
         data: {
           'name': group.name,
           'description': group.description,
@@ -125,7 +135,7 @@ class ApiClient1 {
       final token = await _secureStorage.readSecureData('token');
       final userId = await _secureStorage.readSecureData('userId');
       final response = await dio.get(
-        'http://10.0.2.2:8080/group/$userId',
+        '/group/$userId',
         options: Options(
             contentType: 'application/json',
             headers: {'Authorization': 'Bearer $token'}),
@@ -141,7 +151,7 @@ class ApiClient1 {
     try {
       final token = await _secureStorage.readSecureData('token');
       final response = await dio.get(
-        'http://10.0.2.2:8080/group/search-members',
+        '/group/search-members',
         queryParameters: {'emailId': email, 'groupId': groupId},
         options: Options(
             contentType: 'application/json',
@@ -164,7 +174,7 @@ class ApiClient1 {
       final token = await _secureStorage.readSecureData('token');
 
       final response = await dio.post(
-        'http://10.0.2.2:8080/group/add-members',
+        '/group/add-members',
         data: {
           'group_id': groupId,
           'user_id': userId,
@@ -186,7 +196,7 @@ class ApiClient1 {
     try {
       final token = await _secureStorage.readSecureData('token');
       final response = await dio.get(
-        'http://10.0.2.2:8080/group/get-members',
+        '/group/get-members',
         queryParameters: {'groupId': groupId},
         options: Options(
             contentType: 'application/json',
@@ -207,7 +217,7 @@ class ApiClient1 {
     try {
       final token = await _secureStorage.readSecureData('token');
       final response = await dio.post(
-        'http://10.0.2.2:8080/group/delete-members',
+        '/group/delete-members',
         data: {
           'group_id': groupId,
           'members': selectedMembers,
@@ -232,7 +242,7 @@ class ApiClient1 {
     try {
       final token = await _secureStorage.readSecureData('token');
       final response = await dio.post(
-        'http://10.0.2.2:8080/add-expense',
+        '/add-expense',
         data: {
           'group_id': groupId,
           'category': category,
@@ -255,7 +265,7 @@ class ApiClient1 {
       final token = await _secureStorage.readSecureData('token');
       final userId = await _secureStorage.readSecureData('userId');
       final response = await dio.get(
-        'http://10.0.2.2:8080/get-expense',
+        '/get-expense',
         queryParameters: {'groupId': groupId, 'userId': userId},
         options: Options(
             contentType: 'application/json',
@@ -277,7 +287,7 @@ class ApiClient1 {
       final token = await _secureStorage.readSecureData('token');
       final userId = await _secureStorage.readSecureData('userId');
       final response = await dio.get(
-        'http://10.0.2.2:8080/get-balance',
+        '/get-balance',
         queryParameters: {'groupId': groupId, 'userId': userId},
         options: Options(
             contentType: 'application/json',
@@ -299,7 +309,7 @@ class ApiClient1 {
       final token = await _secureStorage.readSecureData('token');
       final userId = await _secureStorage.readSecureData('userId');
       final response = await dio.get(
-        'http://10.0.2.2:8080/get-overall-balance',
+        '/get-overall-balance',
         queryParameters: {'userId': userId},
         options: Options(
             contentType: 'application/json',
@@ -322,7 +332,7 @@ class ApiClient1 {
       final userId = int.parse(await _secureStorage.readSecureData('userId'));
       print(userId);
       final response = await dio.post(
-        'http://10.0.2.2:8080/add-settlement',
+        '/add-settlement',
         data: {
           'group_id': groupId,
           'amount': amount,
@@ -345,7 +355,7 @@ class ApiClient1 {
       final userId = int.parse(await _secureStorage.readSecureData('userId'));
       // print(userId);
       final response = await dio.get(
-        'http://10.0.2.2:8080/activity',
+        '/activity',
         queryParameters: {'userId': userId},
         options: Options(
             contentType: 'application/json',
@@ -361,58 +371,251 @@ class ApiClient1 {
     }
   }
 
-  Future<String> getCSV(int groupId) async {
+  // Future<String> getCSV(int groupId) async {
+  //   try {
+  //     final token = await _secureStorage.readSecureData('token');
+  //
+  //     Directory directory = await getTemporaryDirectory();
+  //     // var directory = await getApplicationDocumentsDirectory();
+  //     String filePath = '${directory.path}/report.csv';
+  //     final response = await dio.download(
+  //       '/get-csv',
+  //       filePath,
+  //       queryParameters: {'groupId': groupId},
+  //       options: Options(
+  //           contentType: 'text/csv; charset=UTF-8',
+  //           headers: {'Authorization': 'Bearer $token'}),
+  //     );
+  //     print(filePath);
+  //
+  //     File tempFile = File(filePath);
+  //     Uint8List fileBytes = await tempFile.readAsBytes();
+  //
+  //     // String downloadPath = await saveCsv(fileBytes);
+  //     // debugPrint(downloadPath);
+  //     //
+  //     // final taskId = await FlutterDownloader.enqueue(
+  //     //   url: downloadPath,
+  //     //   headers: {}, // optional: header send with url (auth token etc)
+  //     //   savedDir:"/storage/emulated/0/Android/data/com.example.expensefrontend/files",
+  //     //   showNotification: true, // show download progress in status bar (for Android)
+  //     //   openFileFromNotification: true, // click on notification to open downloaded file (for Android)
+  //     // );
+  //     // FlutterDownloader.open(taskId: taskId!);
+  //
+  //
+  //
+  //     return filePath;
+  //   } on DioException catch (e) {
+  //     throw Exception(e.error);
+  //   }
+  // }
+
+  // Future<String> saveCsv(
+  //     // Uint8List csvData,
+  //     int groupId
+  //     ) async {
+  //   Directory? downloadsDirectory = await getExternalStorageDirectory();
+  //
+  //   // Create the Download folder path
+  //   String downloadPath = '${downloadsDirectory!.path}/Download';
+  //
+  //   // Check if the Download directory exists, and create it if it doesn't
+  //   Directory downloadDir = Directory(downloadPath);
+  //   if (!await downloadDir.exists()) {
+  //     await downloadDir.create(
+  //         recursive:
+  //             true); // Creates the directory and any necessary parent directories
+  //   }
+  //
+  //   // Define the file path for saving the report.csv
+  //   String filePath = '$downloadPath/report.csv';
+  //
+  //   // Save the file
+  //   // File file = File(filePath);
+  //
+  //   // strat here
+  //
+  //   final token = await _secureStorage.readSecureData('token');
+  //   final response = await dio.download(
+  //     '/get-csv',
+  //     filePath,
+  //     queryParameters: {'groupId': groupId},
+  //     options: Options(
+  //         contentType: 'text/csv; charset=UTF-8',
+  //         headers: {'Authorization': 'Bearer $token'}),
+  //   );
+  //
+  //   final result = await OpenFile.open(filePath);
+  //
+  //   if (result.type != ResultType.done) {
+  //     print("Error opening file: ${result.message}");
+  //   }
+  //
+  //   return filePath;
+  //
+  //   // final taskId = await FlutterDownloader.enqueue(
+  //   //   url: 'file:///$filePath',
+  //   //   headers: {}, // optional: header send with url (auth token etc)
+  //   //   savedDir:downloadPath,
+  //   //   fileName: 'report.csv',
+  //   //   showNotification: true, // show download progress in status bar (for Android)
+  //   //   openFileFromNotification: true, // click on notification to open downloaded file (for Android)
+  //   // );
+  //   // await _waitForDownloadCompletion(taskId!);
+  //   //
+  //   // // Open the file
+  //   // await FlutterDownloader.open(taskId: taskId);
+  //
+  //   // return filePath;
+  //   // end here
+  //
+  //   // await file.writeAsBytes(csvData);
+  //
+  //   return filePath;
+  //
+  // }
+
+
+
+
+  Future<void> newDownload(int groupId,String groupName)async{
+
     try {
       final token = await _secureStorage.readSecureData('token');
-      // final userId = int.parse(await _secureStorage.readSecureData('userId'));
-      // print(userId);
-      Directory directory = await getTemporaryDirectory();
-      String filePath = '${directory.path}/report.csv';
-      final response = await dio.download(
-        'http://10.0.2.2:8080/get-csv',
-        filePath,
-        queryParameters: {'groupId': groupId},
-        options: Options(
-            // contentType: 'application/json',
-            headers: {'Authorization': 'Bearer $token'}),
+      // Directory? downloadsDirectory = await getExternalStorageDirectory();
+      final taskId = await FlutterDownloader.enqueue(
+        url: 'http://10.0.2.2:8080/get-csv/$groupId',
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': "text/csv",
+          'Accept': '*/*',
+          'Content-disposition': "attachment;filename=report.csv",
+        },
+        // optional: header send with url (auth token etc)
+        savedDir: "/storage/emulated/0/Download",
+        fileName: '${groupName}Report.csv',
+        showNotification: true,
+        // show download progress in status bar (for Android)
+        openFileFromNotification: true, // click on notification to open downloaded file (for Android)
       );
-      print(filePath);
-      File tempFile = File(filePath);
-      Uint8List fileBytes = await tempFile.readAsBytes();
+      await _waitForDownloadCompletion(taskId!);
 
-      // Save the file to the Downloads folder
-      String downloadPath = await saveCsv(fileBytes);
-      print(downloadPath);
+      // Open the file
+      await FlutterDownloader.open(taskId: taskId);
+    }catch(e){
+      throw Exception("Can not download file.");
+    }
 
-      return downloadPath;
-    } on DioException catch (e) {
-      throw Exception(e.error);
+  }
+
+  Future<void> _waitForDownloadCompletion(String taskId) async {
+    bool isComplete = false;
+    while (!isComplete) {
+      await Future.delayed(Duration(milliseconds: 500));
+      final tasks = await FlutterDownloader.loadTasks();
+      final task = tasks?.firstWhere((task) => task.taskId == taskId);
+      if (task?.status == DownloadTaskStatus.complete) {
+        isComplete = true;
+      }
     }
   }
 
-  Future<String> saveCsv(Uint8List csvData) async {
-    Directory? downloadsDirectory = await getExternalStorageDirectory();
-
-    // Create the Download folder path
-    String downloadPath = '${downloadsDirectory!.path}/Download';
-
-    // Check if the Download directory exists, and create it if it doesn't
-    Directory downloadDir = Directory(downloadPath);
-    if (!await downloadDir.exists()) {
-      await downloadDir.create(
-          recursive:
-              true); // Creates the directory and any necessary parent directories
-    }
-
-    // Define the file path for saving the report.csv
-    String filePath = '$downloadPath/report.csv';
-
-    // Save the file
-    File file = File(filePath);
-    await file.writeAsBytes(csvData);
-
-    return filePath;
-  }
+//   Future<String> download(int groupId) async {
+//     final token = await _secureStorage.readSecureData('token');
+//     // Directory directory = await getTemporaryDirectory();
+//     // String filePath = 'file:${directory.path}/report.csv';
+//     // print(filePath);
+//
+//     // final response = await dio.get(
+//     //   '/get-csv',
+//     //   queryParameters: {'groupId': groupId},
+//     //   options: Options(
+//     //       // contentType: 'application/json',
+//     //       headers: {
+//     //         'Authorization': 'Bearer $token',
+//     //         'Content-Type': 'text/csv',
+//     //         'Content-Disposition': 'attachment;filename=report.csv',
+//     //       },
+//     //       responseType: ResponseType.stream),
+//     // );
+//
+//     // final url = Uri.dataFromBytes(response.data, mimeType: 'text/csv')
+//     //     .replace(queryParameters: {'filename': 'report.csv'});
+//     //
+//     // await launchUrl(url);
+//     // print(response.data);
+//     // final tempDir = await getTemporaryDirectory();
+//     // final filePath = '${tempDir.path}/report.csv';
+//     // print(filePath);
+//     // final file = File(filePath);
+//     // final sink = file.openWrite();
+//     //
+//     // await response.data.stream.forEach((data) {
+//     //   sink.add(data);
+//     // });
+//     // await sink.flush();
+//     // await sink.close();
+//     //
+//     // final url = Uri.file(filePath);
+//     // if (await canLaunchUrl(url)) {
+//     //   await launchUrl(url);
+//     // }
+//
+//     // final file = File(filePath);
+//     // await file.writeAsBytes(response.data);
+//     //
+//     // final Uri uri = Uri.file(filePath);
+//     // await launchUrl(uri);
+// //     if (!File(uri.toFilePath()).existsSync()) {
+// //       throw Exception('$uri does not exist!');
+// //     }
+// // print(filePath);
+//     // await launchUrl(Uri.file(filePath));
+//     // if (!await launchUrl(Uri.file('r'+filePath,windows: true))) {
+//     //   throw Exception('Could not launch $filePath');
+//     // }
+//     // Directory? directory = await getExternalStorageDirectory();
+//     // final filePath = '${directory!.path}/report.csv';
+//     //
+//     //
+//     // final file = File(filePath);
+//     // await file.writeAsBytes(response.data);
+//     //
+//     // final taskId = await FlutterDownloader.enqueue(
+//     //   url: filePath,
+//     //   headers: {}, // optional: header send with url (auth token etc)
+//     //   savedDir: directory.path,
+//     //   fileName: 'report.csv',
+//     //   showNotification:
+//     //       true, // show download progress in status bar (for Android)
+//     //   openFileFromNotification:
+//     //       true, // click on notification to open downloaded file (for Android)
+//     // );
+//
+//     final response = await dio.get(
+//       '/get-csv',
+//       queryParameters: {'groupId': groupId},
+//       options: Options(
+//         responseType: ResponseType.bytes,
+//         headers: {
+//           'Content-Type': 'text/csv; charset=UTF-8',
+//           'Content-Disposition': 'attachment;filename=report.csv',
+//           'Authorization': 'Bearer $token',
+//         },
+//       ),
+//     );
+//
+//     final bytes = response.data;
+//     final blob = Uint8List.fromList(bytes);
+//     final uri = Uri.dataFromBytes(blob, mimeType: 'text/csv')
+//         .replace(queryParameters: {'filename': 'report.csv'});
+//
+//     if (await canLaunchUrl(uri)) {
+//       await launchUrl(uri);
+//     } else {
+//       throw Exception('Could not launch $uri');
+//     }
+//     return "sdf";
+//   }
 }
-
-

@@ -7,11 +7,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import './core/signup_bloc.dart';
 
-class RegisterPage extends StatelessWidget {
+class RegisterPage extends StatefulWidget{
+  const RegisterPage({super.key});
+
+  @override
+  RegisterPageState createState()=> RegisterPageState();
+}
+
+class RegisterPageState extends State<RegisterPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final _nameKey = GlobalKey<FormFieldState>();
+  final _emailKey = GlobalKey<FormFieldState>();
+  final _passwordKey = GlobalKey<FormFieldState>();
+
+  bool _isSubmitting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -76,13 +88,17 @@ class RegisterPage extends StatelessWidget {
   Widget _buildRegisterForm(BuildContext context) {
     return Form(
       key: _formKey,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      // autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TextFormField(
+            key: _nameKey,
             controller: _nameController,
             decoration: InputDecoration(labelText: 'Name'),
+            onChanged: (value) {
+              _nameKey.currentState!.validate();
+            },
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter your name';
@@ -92,23 +108,36 @@ class RegisterPage extends StatelessWidget {
           ),
           SizedBox(height: 16.0),
           TextFormField(
+            key: _emailKey,
             controller: _emailController,
             decoration: InputDecoration(labelText: 'EmailId'),
+            onChanged: (value) {
+
+              _emailKey.currentState!.validate();
+
+            },
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter your email';
               }
+
+              if(_isSubmitting){
               final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
               if (!emailRegex.hasMatch(value)) {
                 return 'Please enter a valid email address';
+              }
               }
               return null;
             },
           ),
           SizedBox(height: 16.0),
           TextFormField(
+            key: _passwordKey,
             controller: _passwordController,
             decoration: InputDecoration(labelText: 'Password'),
+            onChanged: (value) {
+              _passwordKey.currentState!.validate();
+            },
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter your password';
@@ -120,6 +149,9 @@ class RegisterPage extends StatelessWidget {
           SizedBox(height: 24.0),
           ElevatedButton(
             onPressed: () {
+              setState(() {
+                _isSubmitting=true;
+              });
               if (_formKey.currentState!.validate()) {
                 BlocProvider.of<RegisterBloc>(context).add(
                   RegisterRequested(
@@ -129,6 +161,9 @@ class RegisterPage extends StatelessWidget {
                   ),
                 );
               }
+              setState(() {
+                _isSubmitting = false;
+              });
             },
             child: Text('Signup'),
           ),

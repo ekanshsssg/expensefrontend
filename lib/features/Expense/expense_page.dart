@@ -55,28 +55,29 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     content: Text('Expense added successfully.'),
                   ),
                 );
-                Navigator.pop(context,true);
+                Navigator.pop(context, true);
               } else if (state is AddExpenseFailure) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Failed to add an Expense.'),
                   ),
                 );
-                Navigator.pop(context,false);
+                Navigator.pop(context, false);
               }
             },
             builder: (context, state) {
               if (state is AddExpenseLoading) {
                 return Center(child: CircularProgressIndicator());
               } else if (state is AddExpenseMembersLoaded) {
-                print("qw");
                 return SingleChildScrollView(
                   child: Padding(
                     padding: EdgeInsets.all(16),
                     child: Column(
                       children: [
-                        _buildMemberSelection(state.members),
+                        // _buildMemberSelection(state.members),
+                        _buildSelection(state.members),
                         _buildForm(state.members),
+                        // Spacer(),
                         _buildSubmitButton(context),
                       ],
                     ),
@@ -89,64 +90,155 @@ class _AddExpensePageState extends State<AddExpensePage> {
     );
   }
 
-  Widget _buildMemberSelection(List<Member> members) {
-    return MultiSelectDialogField(
-      title: const Text('Add members'),
-      items: members
-          .map((member) => member.memberId != _userId
-              ? MultiSelectItem<int>(member.memberId, member.name)
-              : MultiSelectItem<int>(member.memberId, "You"))
-          .toList(),
-      listType: MultiSelectListType.CHIP,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(5)),
-        border: Border.all(color: Colors.grey),
-      ),
-      buttonIcon: Icon(
-        Icons.group,
-        color: Colors.black,
-      ),
-      buttonText: Text(
-        "Select Members",
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 16,
-        ),
-      ),
-      initialValue: _selectedMembers,
-      onSelectionChanged: (values) {
-        if (!values.contains(_userId)) {
-          values.add(_userId);
-        }
-        // _selectedMembers = values;
-      },
-      onConfirm: (values) {
-        setState(() {
-          _selectedMembers = values;
-        });
-      },
-    );
+  // Widget _buildMemberSelection(List<Member> members) {
+  //   return MultiSelectDialogField(
+  //     title: const Text('Add members'),
+  //     items: members
+  //         .map((member) => member.memberId != _userId
+  //             ? MultiSelectItem<int>(member.memberId, member.name)
+  //             : MultiSelectItem<int>(member.memberId, "You"))
+  //         .toList(),
+  //     listType: MultiSelectListType.LIST,
+  //     decoration: BoxDecoration(
+  //       borderRadius: BorderRadius.all(Radius.circular(5)),
+  //       border: Border.all(color: Colors.grey),
+  //     ),
+  //     dialogHeight: 200,
+  //     dialogWidth: 100,
+  //     buttonIcon: Icon(
+  //       Icons.group,
+  //       color: Colors.black,
+  //     ),
+  //     buttonText: Text(
+  //       _selectedMembers.length > 0
+  //           ? '${_selectedMembers.length} selected'
+  //           : "Select Members",
+  //       style: TextStyle(
+  //         color: Colors.black,
+  //         fontSize: 16,
+  //       ),
+  //     ),
+  //     initialValue: _selectedMembers,
+  //     onSelectionChanged: (values) {
+  //       if (!values.contains(_userId)) {
+  //         values.add(_userId);
+  //       }
+  //       // _selectedMembers = values;
+  //     },
+  //     onConfirm: (values) {
+  //       setState(() {
+  //         _selectedMembers = values;
+  //       });
+  //     },
+  //   );
+  //
+  //   // return [
+  //   //   Text('Select Members'),
+  //   //   Wrap(
+  //   //     children: members.map((member) {
+  //   //       return ChoiceChip(
+  //   //         label: Text(member.name),
+  //   //         selected: _selectedMembers.contains(member.memberId),
+  //   //         onSelected: (selected) {
+  //   //           setState(() {
+  //   //             if (selected) {
+  //   //               _selectedMembers.add(member.memberId);
+  //   //             } else {
+  //   //               _selectedMembers.remove(member.memberId);
+  //   //             }
+  //   //           });
+  //   //         },
+  //   //       );
+  //   //     }).toList(),
+  //   //   ),
+  //   // ];
+  // }
 
-    // return [
-    //   Text('Select Members'),
-    //   Wrap(
-    //     children: members.map((member) {
-    //       return ChoiceChip(
-    //         label: Text(member.name),
-    //         selected: _selectedMembers.contains(member.memberId),
-    //         onSelected: (selected) {
-    //           setState(() {
-    //             if (selected) {
-    //               _selectedMembers.add(member.memberId);
-    //             } else {
-    //               _selectedMembers.remove(member.memberId);
-    //             }
-    //           });
-    //         },
-    //       );
-    //     }).toList(),
-    //   ),
-    // ];
+  Widget _buildSelection(List<Member> members) {
+    return GestureDetector(
+      onTap: () {
+        showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+            builder: (context) {
+              return StatefulBuilder(
+                  builder: (context, StateSetter setBottomSheetState) {
+                return SizedBox(
+                  height: members.length >2 ? 400 : 250,
+                  child: ListView.builder(
+                    itemCount: members.length,
+                    itemBuilder: (context, index) {
+                      final member = members[index];
+                      final isDefaultMember = member.memberId == _userId;
+
+                      return CheckboxListTile(
+                        title: Text(member.name),
+                        subtitle: Text(member.emailId),
+                        value: _selectedMembers.contains(member.memberId),
+                        onChanged: isDefaultMember ? null :  (bool? selected) {
+                          setBottomSheetState(() {
+                            if (selected!) {
+                              _selectedMembers.add(member.memberId);
+                            } else {
+                              _selectedMembers.remove(member.memberId);
+                              debugPrint(_selectedMembers.toString());
+                            }
+                          });
+
+                          setState((){
+                            _selectedMembers = _selectedMembers;
+                          });
+                        },
+                      );
+                    },
+                  ),
+                  // child: Expanded(
+                  //   child: ListView.builder(
+                  //     itemCount: members.length,
+                  //     itemBuilder: (context, index) {
+                  //       final member = members[index];
+                  //       return CheckboxListTile(
+                  //         title: Text(member.name),
+                  //         subtitle: Text(member.emailId),
+                  //         value: _selectedMembers.contains(member.memberId),
+                  //         onChanged: (bool? selected) {
+                  //           setState(() {
+                  //             if (selected!) {
+                  //               _selectedMembers.add(member.memberId);
+                  //             } else {
+                  //               _selectedMembers.remove(member.memberId);
+                  //             }
+                  //           });
+                  //         },
+                  //       );
+                  //     },
+                  //   ),
+                  // ),
+                );
+              });
+            });
+// showBottomSheet(context: context, builder: builder)
+      },
+      child: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(5.0),
+        ),
+        child:
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Text(_selectedMembers.isNotEmpty
+              ? '${_selectedMembers.length} selected'
+              : 'Select Members'),
+          const Icon(
+            Icons.group,
+            color: Colors.black,
+          )
+        ]),
+      ),
+    );
   }
 
   Widget _buildForm(List<Member> members) {
@@ -170,21 +262,6 @@ class _AddExpensePageState extends State<AddExpensePage> {
             decoration: InputDecoration(labelText: 'Description'),
           ),
           SizedBox(height: 16),
-          // DropdownButton<int>(
-          //   hint: Text('Paid By'),
-          //   value: paidBy,
-          //   items: _selectedMembers.map((memberId) {
-          //     return DropdownMenuItem<int>(
-          //       value: memberId,
-          //       child: Text('Member $memberId'),
-          //     );
-          //   }).toList(),
-          //   onChanged: (value) {
-          //     setState(() {
-          //       paidBy = value;
-          //     });
-          //   },
-          // ),
           Row(
             children: [
               Text(
@@ -238,7 +315,6 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   ),
                   // isExpanded: true,
                   // isDense: true,
-
                 ),
                 // child: DropdownButton<int>(
                 //   hint: Text(
@@ -328,8 +404,6 @@ class _AddExpensePageState extends State<AddExpensePage> {
               content: Text('Please fill all fields and select members')));
           return;
         }
-
-
 
         context.read<AddExpenseBloc>().add(AddExpense(
               groupId: widget.groupId,

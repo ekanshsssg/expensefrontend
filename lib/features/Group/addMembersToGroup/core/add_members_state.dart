@@ -20,9 +20,9 @@ class AddMembersLoaded extends AddMembersState {
   List<Object> get props => [members];
 }
 
-class YouCanNotAddYourself extends AddMembersState{}
-
 class YouAreAlreadyPresent extends AddMembersState{}
+
+class YouAreAlreadySelected extends AddMembersState{}
 
 
 class AddMembersSelected extends AddMembersState {

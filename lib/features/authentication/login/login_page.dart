@@ -7,19 +7,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../pages/home.dart';
 import './core/login_bloc.dart';
 
-// class LoginPage extends StatefulWidget {
-//   const LoginPage({super.key});
-//
-//   @override
-//   LoginPageState createState() => LoginPageState();
-// }
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
-class LoginPage extends StatelessWidget {
+  @override
+  LoginPageState createState() => LoginPageState();
+}
+
+class LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final _emailKey = GlobalKey<FormFieldState>();
+  final _passwordKey = GlobalKey<FormFieldState>();
 
-  // String? _emailError;
+  bool _isSubmitting = false;
   // String? _passwordError;
 
   @override
@@ -101,47 +103,56 @@ class LoginPage extends StatelessWidget {
   Widget _buildLoginForm(BuildContext context) {
     return Form(
       key: _formKey,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      // autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TextFormField(
+            key: _emailKey,
             controller: _emailController,
             decoration: InputDecoration(
               labelText: 'Email',
+              // errorText: _emailError,
             ),
-            // onChanged: (value) {
-            //   setState(() {
-            //     _emailError = null;
-            //   });
-            // },
+            onChanged: (value) {
+              _emailKey.currentState!.validate();
+            },
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter your email';
+                // setState(() {
+                  return "Please enter your email";
+                // });
+                // return _emailError;
               }
               // Regex for email validation
+              if(_isSubmitting){
+
               final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
               if (!emailRegex.hasMatch(value)) {
                 return 'Please enter a valid email address';
+              }
               }
               return null;
             },
           ),
           SizedBox(height: 16.0),
           TextFormField(
+            key: _passwordKey,
             controller: _passwordController,
             decoration: InputDecoration(
               labelText: 'Password',
+              // errorText: _passwordError,
             ),
-            // onChanged: (value) {
-            //   setState(() {
-            //     _passwordError = null;
-            //   });
-            // },
+            onChanged: (value) {
+              _passwordKey.currentState!.validate();
+            },
             obscureText: true,
             validator: (value) {
               if (value == null || value.isEmpty) {
+               // setState(() {
                 return 'Please enter your password';
+               // });
+               // return _passwordError;
               }
               return null;
             },
@@ -149,6 +160,9 @@ class LoginPage extends StatelessWidget {
           SizedBox(height: 24.0),
           ElevatedButton(
             onPressed: () {
+              setState(() {
+                _isSubmitting = true;
+              });
               if (_formKey.currentState!.validate()) {
                 BlocProvider.of<LoginBloc>(context).add(
                   LoginRequested(
@@ -157,6 +171,9 @@ class LoginPage extends StatelessWidget {
                   ),
                 );
               }
+              setState(() {
+                _isSubmitting=false;
+              });
             },
             child: const Text('Login'),
           ),
@@ -172,4 +189,6 @@ class LoginPage extends StatelessWidget {
       ),
     );
   }
+
+
 }

@@ -24,27 +24,31 @@ class AddMembersBloc extends Bloc<AddMembersEvent, AddMembersState> {
         final userIdStr = await _secureStorage.readSecureData('userId');
         final userId = int.parse(userIdStr);
         bool memberExists = membersList
-            .any((existingMember) => existingMember.emailId == member!.emailId);
+            .any((existingMember) => existingMember.emailId == member.emailId);
         // if (!memberExists && !(member.memberId == userId)) {
         //   membersList.add(member);
         // }
         if (!memberExists) {
-          membersList.add(member!);
+          membersList.add(member);
         }
         // if ((member.memberId == userId)) {
         //   emit(YouCanNotAddYourself());
         // }
-        // print(membersList);
+        print(membersList);
         if (memberExists) {
-          emit(YouAreAlreadyPresent());
+          emit(YouAreAlreadySelected());
         }
         // await Future.delayed(const Duration(milliseconds: 250),(){});
-        else emit(AddMembersSelected(selectedMembers: membersList));
+        emit(AddMembersSelected(selectedMembers: membersList));
 
         // print(members);
-      } catch (e) {
-        print(e);
+      }on Exception catch (e) {
+        print(e.toString());
+        emit(YouAreAlreadyPresent());
+        emit(AddMembersSelected(selectedMembers: membersList));
+      } catch (e){
         emit(AddMembersFailure(error: e.toString()));
+
       }
     });
 

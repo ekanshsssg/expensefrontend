@@ -1,5 +1,3 @@
-
-
 import 'package:expensefrontend/features/Group/createGroup/create_group.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -147,8 +145,7 @@ class GroupsPage extends StatelessWidget {
                       ),
                       ElevatedButton(
                           onPressed: () async {
-                            // Navigate to create group page
-                            // appRouter.push(CreateGroupPage());
+
                             final result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(

@@ -1,39 +1,14 @@
-import 'dart:math';
 import 'package:collection/collection.dart';
-import 'package:auto_route/auto_route.dart';
 import 'package:expensefrontend/data/api/auth.dart';
 import 'package:expensefrontend/features/Expense/expense_page.dart';
 import 'package:expensefrontend/features/Group/addMembersToGroup/add_members.dart';
 import 'package:expensefrontend/features/Group/deleteMembersFromGroup/delete_members_page.dart';
 import 'package:expensefrontend/features/settlement/settle_up_page.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_approuter/flutter_approuter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../data/models/balance.dart';
 import 'core/group_details_bloc.dart';
 
-// class GroupDetailsPage extends StatelessWidget {
-//   final int groupId;
-//   final String groupName;
-//
-//   const GroupDetailsPage({
-//     Key? key,
-//     required this.groupId,
-//     required this.groupName,
-//   }) : super(key: key);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//         appBar: AppBar(
-//           title: Text(groupName),
-//         ),
-//         body: Center(child: Text(groupName)));
-//   }
-// }
-
-import 'package:flutter/material.dart';
 
 class GroupDetailsPage extends StatelessWidget {
   final int groupId;
@@ -57,6 +32,7 @@ class GroupDetailsPage extends StatelessWidget {
           listener: (context, state) {
             // TODO: implement listener
             if (state is GroupDetailsFailure) {
+              // print(state.error);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(state.error),
@@ -235,11 +211,14 @@ class GroupDetailsPage extends StatelessWidget {
                                 ),
                                 ElevatedButton(
                                   onPressed: () async {
-                                    final apiclient = ApiClient1();
+                                    final apiClient = ApiClient1();
                                     try {
-                                      final path = await apiclient.getCSV(groupId);
-                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("File saved to path ${path}")));
-                                    } catch (e) {
+                                      await apiClient.newDownload(groupId,groupName);
+                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("File downloaded")));
+                                    }on Exception catch(e) {
+                                      print(e.toString());
+                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+                                    }catch (e) {
                                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("File can not be downloaded.")));
                                     }
                                   },
@@ -325,7 +304,7 @@ class GroupDetailsPage extends StatelessWidget {
                   MaterialPageRoute(
                       builder: (context) => AddExpensePage(groupId: groupId)));
 
-              // if (!context.mounted) return;
+              if (!context.mounted) return;
 
               if (result == true) {
                 ScaffoldMessenger.of(context)
@@ -338,7 +317,7 @@ class GroupDetailsPage extends StatelessWidget {
                 context
                     .read<GroupDetailsBloc>()
                     .add(FetchGroupDetails(groupId));
-              } else {
+              } else if (result == false) {
                 ScaffoldMessenger.of(context)
                   ..removeCurrentSnackBar()
                   ..showSnackBar(
@@ -362,7 +341,6 @@ Widget _buildExpenseItem(String title, String subtitle, String action,
     padding: const EdgeInsets.symmetric(vertical: 8.0),
     child: Row(
       children: [
-        // Icon(Icons.fastfood, size: 32, color: Colors.grey),
         Container(
           height: 55,
           width: 55,
