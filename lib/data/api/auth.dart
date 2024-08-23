@@ -483,17 +483,23 @@ class ApiClient1 {
 
     try {
       final token = await _secureStorage.readSecureData('token');
-      // Directory? downloadsDirectory = await getExternalStorageDirectory();
+      late Directory downloadsDirectory;
+      if (Platform.isAndroid) {
+        downloadsDirectory = Directory('/storage/emulated/0/Download');
+      } else {
+        downloadsDirectory = await getApplicationDocumentsDirectory();
+      }
+
       final taskId = await FlutterDownloader.enqueue(
-        url: 'http://10.0.2.2:8080/get-csv/$groupId',
+        url: 'http://${Platform.isAndroid ? '10.0.2.2' : 'localhost'}:8080/get-csv/$groupId',
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': "text/csv",
-          'Accept': '*/*',
+          // 'Accept': '*/*',
           'Content-disposition': "attachment;filename=report.csv",
         },
         // optional: header send with url (auth token etc)
-        savedDir: "/storage/emulated/0/Download",
+        savedDir: downloadsDirectory.path,
         fileName: '${groupName}Report.csv',
         showNotification: true,
         // show download progress in status bar (for Android)
@@ -504,6 +510,7 @@ class ApiClient1 {
       // Open the file
       await FlutterDownloader.open(taskId: taskId);
     }catch(e){
+      debugPrint(e.toString());
       throw Exception("Can not download file.");
     }
 
