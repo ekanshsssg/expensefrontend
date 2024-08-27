@@ -1,18 +1,48 @@
 import 'package:expensefrontend/features/authentication/login/login_page.dart';
 import 'package:expensefrontend/features/authentication/signup/signup_page.dart';
-import 'package:flutter_approuter/flutter_approuter.dart';
+import 'package:expensefrontend/features/botttom_navigation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
-  // final ApiClient apiClient = ApiClient(baseUrl: 'http://localhost:8080/auth');
+  @override
+  HomePageState createState() => HomePageState();
+}
+
+class HomePageState extends State<HomePage> {
+  // const HomePage({super.key});
+
+  @override
+  void initState() {
+    super.initState();
+    checkUserLoggedIn();
+  }
+
+  void checkUserLoggedIn() async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final isLogin = prefs.getBool('isUserLoggedIn') ?? false;
+      print(isLogin);
+      if (isLogin) {
+        Navigator.pushReplacement<void, void>(
+          context,
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) => BottomNavigation(),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Expense Management'),
+        title: const Text('ExpenseTrak'),
         automaticallyImplyLeading: false,
       ),
       body: Center(
@@ -22,13 +52,16 @@ class HomePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/images/initial.jpg',
+                'assets/images/icon.jpg',
                 height: 180,
               ),
               const SizedBox(height: 40),
               OutlinedButton(
                 onPressed: () {
-                  appRouter.push(LoginPage()); // Navigate to Login Page
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const LoginPage()));
                 },
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
@@ -45,7 +78,10 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 20),
               OutlinedButton(
                 onPressed: () {
-                  appRouter.push(RegisterPage());
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const RegisterPage()));
                 },
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
@@ -66,9 +102,6 @@ class HomePage extends StatelessWidget {
     );
   }
 }
-
-
-
 
 // class HomePage extends StatelessWidget {
 //   const HomePage({Key? key}) : super(key: key);
@@ -98,7 +131,7 @@ class HomePage extends StatelessWidget {
 //                         radius: 80,
 //                         backgroundColor: Colors.white,
 //                         child: Image.asset(
-//                           'assets/images/initial.jpg',
+//                           'assets/images/icon.jpg',
 //                           height: 120,
 //                         ),
 //                       ),

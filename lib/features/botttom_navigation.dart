@@ -1,15 +1,15 @@
 import 'package:expensefrontend/features/Group/groupsPage/groups_page.dart';
 import 'package:flutter/material.dart';
 
-import '../features/account/account_page.dart';
-import '../features/activity/activity_page.dart';
+import 'account/account_page.dart';
+import 'activity/activity_page.dart';
 
-class ProfilePage extends StatefulWidget {
+class BottomNavigation extends StatefulWidget {
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  _BottomNavigationState createState() => _BottomNavigationState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _BottomNavigationState extends State<BottomNavigation> {
   int selectedIndex = 0;
 
   final List<Widget> pages = [GroupsPage(), ActivityPage(), AccountPage()];

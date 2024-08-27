@@ -3,7 +3,6 @@ import 'package:expensefrontend/features/settlement/widget/core/settle_up_dialog
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-
 class SettleUpPage extends StatelessWidget {
   final int groupId;
 
@@ -120,7 +119,6 @@ class SettleUpPage extends StatelessWidget {
                                                       content: Text(
                                                           "Successfully settled up")));
                                               Navigator.pop(context, true);
-
                                             } else if (state
                                                 is SettleUpDialogFailure) {
                                               ScaffoldMessenger.of(context)
@@ -197,7 +195,7 @@ class SettleUpPage extends StatelessWidget {
                                                     height: 16,
                                                   ),
                                                   Text(
-                                                      "${balance.balance > 0 ? "${balance.name}  paid  You" : "You  paid  ${balance.name}"}"),
+                                                      "${balance.balance > 0 ? "${balance.name} paid You" : "You paid ${balance.name}"}"),
                                                   SizedBox(
                                                     height: 16,
                                                   ),

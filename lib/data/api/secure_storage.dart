@@ -8,19 +8,16 @@ class SecureStorage {
       await storage.write(key: key, value: value);
       return "true";
     } catch (e) {
-      // throw Exception(e);
-      return "false";
+      throw Exception(e.toString());
     }
   }
 
   Future<String> readSecureData(String key) async {
     try{
-    String value = await storage.read(key: key) ?? 'No data found';
-    print('Data read from secure storage');
+    String value = await storage.read(key: key) ?? '';
     return value;
     }catch(e){
-      // throw Exception(e);
-      return "false";
+      throw Exception(e.toString());
     }
   }
 
@@ -29,8 +26,7 @@ class SecureStorage {
     await storage.delete(key: key);
     return "true";
     }catch(e){
-      // throw Exception(e);
-      return "false";
+      throw Exception(e.toString());
     }
   }
 }

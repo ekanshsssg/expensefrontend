@@ -1,7 +1,5 @@
-import 'package:expensefrontend/features/Group/groupsPage/groups_page.dart';
-import 'package:expensefrontend/pages/profile.dart';
+import 'package:expensefrontend/features/botttom_navigation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_approuter/flutter_approuter.dart';
 import 'package:expensefrontend/features/authentication/signup/signup_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../pages/home.dart';
@@ -38,7 +36,12 @@ class LoginPageState extends State<LoginPage> {
             title: Text('Login'),
             leading: BackButton(
               onPressed: () {
-                appRouter.pushReplacement(const HomePage());
+                Navigator.pushReplacement<void, void>(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) =>  HomePage(),
+                  ),
+                );
               },
             ),
           ),
@@ -60,7 +63,7 @@ class LoginPageState extends State<LoginPage> {
                       // appRouter.push(GroupsPage());
                       Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (context) => ProfilePage()),
+                        MaterialPageRoute(builder: (context) => BottomNavigation()),
                         (Route<dynamic> route) => false,
                       );
 
@@ -70,6 +73,7 @@ class LoginPageState extends State<LoginPage> {
                       //         builder: (context) => ProfilePage()));
                     });
                   } else if (state is LoginFailure) {
+                    print(state.error);
                     ScaffoldMessenger.of(context)
                         .showSnackBar(SnackBar(content: Text(state.error)));
                   }
@@ -181,7 +185,9 @@ class LoginPageState extends State<LoginPage> {
           const Text("Don't have an account"),
           TextButton(
             onPressed: () {
-              appRouter.push(RegisterPage());
+              // appRouter.push(RegisterPage());
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const RegisterPage()));
             },
             child: const Text('Signup'),
           ),

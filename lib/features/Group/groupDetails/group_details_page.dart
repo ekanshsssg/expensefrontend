@@ -1,23 +1,25 @@
 import 'package:collection/collection.dart';
-import 'package:expensefrontend/data/api/auth.dart';
+import 'package:expensefrontend/data/api/repository.dart';
 import 'package:expensefrontend/features/Expense/expense_page.dart';
 import 'package:expensefrontend/features/Group/addMembersToGroup/add_members.dart';
 import 'package:expensefrontend/features/Group/deleteMembersFromGroup/delete_members_page.dart';
 import 'package:expensefrontend/features/settlement/settle_up_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_approuter/flutter_approuter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../data/api/secure_storage.dart';
 import 'core/group_details_bloc.dart';
 
 
 class GroupDetailsPage extends StatelessWidget {
   final int groupId;
   final String groupName;
+  final int createdBy;
 
   const GroupDetailsPage({
     Key? key,
     required this.groupId,
     required this.groupName,
+    required this.createdBy,
   }) : super(key: key);
 
   @override
@@ -168,9 +170,17 @@ class GroupDetailsPage extends StatelessWidget {
                                   width: 16,
                                 ),
                                 ElevatedButton(
-                                  onPressed: () {
-                                    appRouter
-                                        .push(AddMembers(groupId: groupId));
+                                  onPressed: () async{
+                                    final _secureStorage = SecureStorage();
+                                    final userId = int.parse(await _secureStorage.readSecureData('userId'));
+                                    if(userId == createdBy) {
+                                      Navigator.push(context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  AddMembers(groupId: groupId)));
+                                    }else{
+                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Only group creator can add members.")));
+                                    }
                                   },
                                   child: const Text('Add Members'),
                                   style: ElevatedButton.styleFrom(
@@ -189,9 +199,17 @@ class GroupDetailsPage extends StatelessWidget {
                                   width: 16,
                                 ),
                                 ElevatedButton(
-                                  onPressed: () {
-                                    appRouter.push(
-                                        DeleteMembersPage(groupId: groupId));
+                                  onPressed: ()async{
+                                    final _secureStorage = SecureStorage();
+                                    final userId = int.parse(await _secureStorage.readSecureData('userId'));
+                                    if(userId == createdBy) {
+                                      Navigator.push(context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  DeleteMembersPage(groupId: groupId)));
+                                    }else{
+                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Only group creator can delete members.")));
+                                    }
                                   },
                                   child: const Text('Delete Members'),
                                   style: ElevatedButton.styleFrom(
@@ -211,9 +229,9 @@ class GroupDetailsPage extends StatelessWidget {
                                 ),
                                 ElevatedButton(
                                   onPressed: () async {
-                                    final apiClient = ApiClient1();
+                                    final repo = Repository();
                                     try {
-                                      await apiClient.newDownload(groupId,groupName);
+                                      await repo.newDownload(groupId,groupName);
                                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("File downloaded")));
                                     }on Exception catch(e) {
                                       print(e.toString());

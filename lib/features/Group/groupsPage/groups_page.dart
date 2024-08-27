@@ -131,6 +131,7 @@ class GroupsPage extends StatelessWidget {
                                           GroupDetailsPage(
                                             groupId: group['group_id'],
                                             groupName: group['name'],
+                                            createdBy: group['created_by'],
                                           ),
                                     ),
                                   );
@@ -162,7 +163,7 @@ class GroupsPage extends StatelessWidget {
                                       Text('Group created successfully.')),
                                 );
                               context.read<GroupBloc>()..add(FetchGroupsEvent());
-                            } else {
+                            } else if(result == false) {
                               ScaffoldMessenger.of(context)
                                 ..removeCurrentSnackBar()
                                 ..showSnackBar(

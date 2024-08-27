@@ -1,8 +1,6 @@
-import 'package:expensefrontend/features/Group/groupsPage/groups_page.dart';
 import 'package:expensefrontend/features/authentication/login/login_page.dart';
 import 'package:expensefrontend/pages/home.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_approuter/flutter_approuter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import './core/signup_bloc.dart';
@@ -36,24 +34,33 @@ class RegisterPageState extends State<RegisterPage> {
         child: Scaffold(
           resizeToAvoidBottomInset: true,
           appBar: AppBar(
-            title: const Text('Register'),
+            title: const Text('SignUp'),
             leading: BackButton(
               onPressed: () {
-                appRouter.push(const HomePage());
+                Navigator.pushReplacement<void, void>(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) =>  HomePage(),
+                  ),
+                );
+
               },
             ),
           ),
           body: Center(
             child: SingleChildScrollView(
-              // child: ConstrainedBox(
-              //   constraints: const BoxConstraints(),
               child: BlocConsumer<RegisterBloc, RegisterState>(
                 listener: (context, state) {
                   if (state is RegisterSuccess) {
                     // print(state.userData);
                     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("User Registered Succesfully")));
-                    appRouter.push(LoginPage());
+                    Navigator.pushReplacement<void, void>(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext context) => const LoginPage(),
+                      ),
+                    );
                   } else if (state is RegisterFailure) {
                     ScaffoldMessenger.of(context)
                         .showSnackBar(SnackBar(content: Text(state.error)));
@@ -171,7 +178,8 @@ class RegisterPageState extends State<RegisterPage> {
           const Text("Have an account?"),
           TextButton(
             onPressed: () {
-              appRouter.push(LoginPage());
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()));
             },
             child: const Text('Login'),
           ),

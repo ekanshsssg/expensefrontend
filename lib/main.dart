@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:flutter_approuter/flutter_approuter.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+
 import '/pages/home.dart';
+
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   if (Platform.isAndroid || Platform.isIOS) {
@@ -21,6 +24,7 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +54,7 @@ class MyApp extends StatelessWidget {
             textTheme: ButtonTextTheme.primary,
           ),
           scaffoldBackgroundColor: Colors.white),
-      home: const HomePage(),
+      home:  HomePage(),
     );
   }
 }
