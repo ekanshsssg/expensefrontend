@@ -46,22 +46,6 @@ class AddMembersBloc extends Bloc<AddMembersEvent, AddMembersState> {
       }
     });
 
-    // on<AddMemberToSelection>((event, emit) {
-    //   if (state is AddMembersLoaded) {
-    //     final loadedState = state as AddMembersLoaded;
-    //     print("h1");
-    //     print(loadedState.members);
-    //     emit(AddMembersSelected(
-    //         // selectedMembers: [...loadedState.members, event.member]));
-    //       selectedMembers: [event.member]));
-    //
-    //     } else if (state is AddMembersSelected) {
-    //     final selectedState = state as AddMembersSelected;
-    //     emit(AddMembersSelected(
-    //         selectedMembers: [...selectedState.selectedMembers, event.member]));
-    //   }
-    // });
-
     on<RemoveMemberFromSelection>((event, emit) {
       if (state is AddMembersSelected) {
         // final selectedState = state as AddMembersSelected;

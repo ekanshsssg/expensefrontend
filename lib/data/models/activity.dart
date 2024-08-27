@@ -4,12 +4,6 @@ class Activities {
   Activities({required this.activities});
 
   Activities.fromJson(Map<String, dynamic> json) {
-    // if (json['activities'] != null) {
-    //   activities = <Activity>[];
-    //   json['activities'].forEach((v) {
-    //     activities.add(new Activity.fromJson(v));
-    //   });
-    // }
     activities = <Activity>[];
     json['activities'].forEach((v) {
       activities.add(Activity.fromJson(v));

@@ -16,15 +16,6 @@ class SearchMembers extends AddMembersEvent {
   List<Object?> get props => [email];
 }
 
-// class AddMemberToSelection extends AddMembersEvent {
-//   final Member member;
-//
-//   const AddMemberToSelection({required this.member});
-//
-//   @override
-//   List<Object> get props => [member];
-// }
-
 class RemoveMemberFromSelection extends AddMembersEvent {
   final Member member;
 

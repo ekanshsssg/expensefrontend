@@ -90,9 +90,6 @@ class AddMembers extends StatelessWidget {
                               trailing: IconButton(
                                 icon: const Icon(Icons.remove),
                                 onPressed: () {
-                                  // context
-                                  //     .read<AddMembersBloc>()
-                                  //     .add(AddMemberToSelection(member: member));
                                   context.read<AddMembersBloc>().add(
                                         RemoveMemberFromSelection(
                                             member: member),

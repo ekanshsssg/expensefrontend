@@ -105,15 +105,6 @@ class GroupsPage extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: ListTile(
-                                // contentPadding: EdgeInsets.symmetric(
-                                //     horizontal: 16, vertical: 8),
-                                // leading: CircleAvatar(
-                                //   backgroundColor: Colors.teal.shade100,
-                                //   child: Text(
-                                //     group['name'][0].toUpperCase(),
-                                //     style: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
-                                //   ),
-                                // ),
                                 title: Text(
                                   group['name'],
                                   style: TextStyle(

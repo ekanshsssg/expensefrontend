@@ -18,17 +18,10 @@ class CreateGroupPage extends StatelessWidget {
         body: BlocConsumer<CreateGroupBloc, CreateGroupState>(
           listener: (context, state) {
             if (state is CreateGroupSuccess) {
-              // ScaffoldMessenger.of(context).showSnackBar(
-              //   SnackBar(content: Text('Group created successfully!')),
-              // );
-              // Future.delayed(Duration(seconds: 1), () {
-              //
-              // });
+
               Navigator.pop(context, true);
             } else if (state is CreateGroupFailure) {
-              // ScaffoldMessenger.of(context).showSnackBar(
-              //   SnackBar(content: Text(state.error)),
-              // );
+
               Navigator.pop(context, false);
             }
           },

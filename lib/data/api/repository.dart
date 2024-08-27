@@ -3,14 +3,13 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:expensefrontend/data/api/secure_storage.dart';
 import 'package:expensefrontend/data/models/activity.dart';
+import 'package:expensefrontend/main.dart';
+import 'package:expensefrontend/pages/home.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-// import 'package:path_provider/path_provider.dart';
-// import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../pages/home.dart';
 import '../models/balance.dart';
 import '../models/expense.dart';
 import '../models/groups_model.dart';
@@ -32,6 +31,10 @@ class Repository {
 
         if (error.response?.statusCode == 401) {
           await logout();
+          navigatorKey.currentState?.pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => HomePage()),
+                (Route<dynamic> route) => false,
+          );
         }
         return handler.next(error);
       }),

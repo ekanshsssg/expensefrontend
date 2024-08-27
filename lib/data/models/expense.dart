@@ -5,13 +5,6 @@ class Expenses {
   Expenses({required this.expenses});
 
   Expenses.fromJson(Map<String, dynamic> json) {
-    // if (json['expenses'] != null) {
-    //   expenses = <Expense>[];
-    //   json['expenses'].forEach((v) {
-    //     expenses!.add(new Expense.fromJson(v));
-    //   });
-    // }
-
     expenses = <Expense>[];
     json['expenses'].forEach((v) {
       expenses.add(Expense.fromJson(v));
@@ -57,15 +50,7 @@ class Expense {
       paidBy: json['paid_by'] as int,
       paidByName: json['paid_by_name'] as String,
       userAmount: double.parse((json['userAmount'] as num).toDouble().toStringAsFixed(2)),
-      // userAmount: (json['userAmount'] as num).toDouble(),
     );
-    // amount = json['amount'];
-    // category = json['category'];
-    // createdAt = json['created_at'];
-    // description = json['description'];
-    // expenseId = json['expense_id'];
-    // paidBy = json['paid_by'];
-    // userAmount = json['userAmount'];
   }
 
   // Map<String, dynamic> toJson() {
